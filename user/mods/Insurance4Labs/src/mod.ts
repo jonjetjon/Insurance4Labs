@@ -105,7 +105,22 @@ class Mod implements IPreSptLoadMod {
                     insurance.messageTemplateId = insuranceFailedLabTemplates[Math.floor(Math.random() * insuranceFailedLabTemplates.length)];
                     insurance.items = [];
                 }
-                
+            }
+            else
+            {
+                //very strange edge case, we have labs insurance that should have failed, but no message to attach to the failed insurance, let's try and find another dialogue message to attach
+                if(traderDialogMessages.insuranceFailed?.length > 0)
+                {
+                    const insuranceFailedTemplates = traderDialogMessages.insuranceFailed;
+                    insurance.messageTemplateId = insuranceFailedTemplates[Math.floor(Math.random() * insuranceFailedTemplates.length)];
+                    insurance.items = [];
+                }
+                else{
+                    //VERY VERY strange edge case, some trader has neither insurance failed messages or labs insurance failed messages
+                    //doubt we will ever reach this code but here we are
+                    logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for failed insurance or labs insurance");
+
+                }
             }
         } else if (insurance.items.length === 0) {
             // Not labs and no items to return
