@@ -96,7 +96,7 @@ class Mod implements IPreSptLoadMod {
         const fenceDialogue = databaseService.getTrader(fenceTraderId).dialogue;
         const copyDialogue = databaseService.getTrader(traderIdToCopy).dialogue;
 
-        const combinedDialogue = {fenceDialogue, copyDialogue};
+        const combinedDialogue = {...fenceDialogue, ...copyDialogue};
 
         databaseService.getTrader(fenceTraderId).dialogue = combinedDialogue;
     }
