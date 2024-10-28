@@ -40,12 +40,10 @@ import { SaveServer } from "@spt/servers/SaveServer";
 
 class Mod implements IPreSptLoadMod
 {
-    public databaseService: DatabaseService;
-    public mailSendService: MailSendService;
     // DO NOT leave static references to ANY resolved dependency.
     // ALWAYS use the container to resolve dependencies
     // ****** ALWAYS *******
-    private static container: DependencyContainer;
+    public static container: DependencyContainer;
     
     // Perform these actions before server fully loads
     public preSptLoad(container: DependencyContainer): void
@@ -53,8 +51,7 @@ class Mod implements IPreSptLoadMod
         // We will save a reference to the dependency container to resolve dependencies
         // that we may need down the line
         Mod.container = container;
-        this.databaseService = container.resolve<DatabaseService>("DatabaseService");
-        this.mailSendService = container.resolve<MailSendService>("MailSendService");
+        
         // Wait until LauncherController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
         container.afterResolution("LauncherController", (_t, result: LauncherController) =>
@@ -101,17 +98,28 @@ class Mod implements IPreSptLoadMod
         return originalReturn;
     }
 
+    //
+    //sendmail function copy from the original spt source code
+    public replacementSendMail(sessionID: string, insurance: Insurance): void {
+        
+        //resolve the services for use in this function that would normally be called from the class of the function we are replacing
+        const databaseService = Mod.container.resolve<DatabaseService>("DatabaseService");
+        const mailSendService = Mod.container.resolve<MailSendService>("MailSendService");
+        const logger = Mod.container.resolve<ILogger>("WinstonLogger");
 
-    public sendMail(sessionID: string, insurance: Insurance): void {
+        //test logger output to see if we are running the new code
+        logger.info("Insurance4Labs sendMailFunction running...");
+        
+        //original code starts here
         const labsId = "laboratory";
         // After all of the item filtering that we've done, if there are no items remaining, the insurance has
         // successfully "failed" to return anything and an appropriate message should be sent to the player.
-        const traderDialogMessages = this.databaseService.getTrader(insurance.traderId).dialogue;
+        const traderDialogMessages = databaseService.getTrader(insurance.traderId).dialogue;
 
         // Map is labs + insurance is disabled in base.json
         if (
             insurance.systemData?.location?.toLowerCase() === labsId &&
-            !this.databaseService.getLocation(labsId).base.Insurance
+            !databaseService.getLocation(labsId).base.Insurance
         ) {
             // Trader has labs-specific messages
             // Wipe out returnable items
@@ -127,7 +135,7 @@ class Mod implements IPreSptLoadMod
         }
 
         // Send the insurance message
-        this.mailSendService.sendLocalisedNpcMessageToPlayer(
+        mailSendService.sendLocalisedNpcMessageToPlayer(
             sessionID,
             this.traderHelper.getTraderById(insurance.traderId),
             insurance.messageType,
