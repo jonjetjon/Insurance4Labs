@@ -22,7 +22,7 @@ class Mod implements IPreSptLoadMod {
     private logger: ILogger;
     // Perform these actions before server fully loads
     public preSptLoad(container: DependencyContainer): void {
-        
+
         // We will save a reference to the dependency container to resolve dependencies
         // that we may need down the line
         Mod.container = container;
@@ -87,8 +87,7 @@ class Mod implements IPreSptLoadMod {
         this.logger.log("Fence insurance is open for business!", LogTextColor.GREEN);
     }
 
-    public addFenceDialogues(traderIdToCopy: string) : void
-    {
+    public addFenceDialogues(traderIdToCopy: string): void {
         this.logger.info("insurance4Labs adding dialogue to fence for insurance messages...");
 
         const fenceTraderId = "579dc571d53a0658a154fbec";
@@ -96,7 +95,7 @@ class Mod implements IPreSptLoadMod {
         const fenceDialogue = databaseService.getTrader(fenceTraderId).dialogue;
         const copyDialogue = databaseService.getTrader(traderIdToCopy).dialogue;
 
-        const combinedDialogue = {...fenceDialogue, ...copyDialogue};
+        const combinedDialogue = { ...fenceDialogue, ...copyDialogue };
 
         databaseService.getTrader(fenceTraderId).dialogue = combinedDialogue;
     }
