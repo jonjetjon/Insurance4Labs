@@ -40,11 +40,11 @@ class Mod implements IPreSptLoadMod {
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, { frequency: "Always" });
 
-        this.logger.log("Patch successful!", LogTextColor.GREEN);
+        this.logger.log("Insurance4Labs patch successful!", LogTextColor.GREEN);
     }
 
     public postDBLoad(container: DependencyContainer): void {
-        this.logger.info("Setting up Fence insurance...");
+        this.logger.info("Insurance4Labs setting up Fence insurance...");
 
         //fence's trader ID(loaded as a const that way in the future if it changes the mod is easier to update)
         const fenceTraderId = "579dc571d53a0658a154fbec";
@@ -89,7 +89,7 @@ class Mod implements IPreSptLoadMod {
 
     public addFenceDialogues(traderIdToCopy: string) : void
     {
-        this.logger.info("Adding dialogue to fence for insurance messages...");
+        this.logger.info("insurance4Labs adding dialogue to fence for insurance messages...");
 
         const fenceTraderId = "579dc571d53a0658a154fbec";
         const databaseService = Mod.container.resolve<DatabaseService>("DatabaseService");
