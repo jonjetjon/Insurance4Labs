@@ -58,8 +58,16 @@ class Mod implements IPreSptLoadMod
         insurancedb["max_return_hour"] = Mod.config.FenceInsuranceMaxHour;
         insurancedb["min_return_hour"] = Mod.config.FenceInsuranceMinHour;
         insurancedb["max_storage_time"] = Mod.config.FenceMaxStorageTime;
+
         
-        
+        const loyaltyLeveldb = fenceBase["loyaltyLevels"];
+        //iterate through every loyalty level
+        for(let loyaltyLevel in loyaltyLeveldb)
+        {
+            //set loyalty price coef
+            const currentLevel = loyaltyLeveldb[loyaltyLevel];
+            currentLevel["insurance_price_coef"] = Mod.config.FenceInsurancePriceCoef;
+        }
         
 
         
