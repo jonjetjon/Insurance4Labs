@@ -19,15 +19,17 @@ class Mod implements IPreSptLoadMod {
 
     private static configPath = path.resolve(__dirname, "../config/config.json");
     private static config: Config;
-
+    private logger: ILogger;
     // Perform these actions before server fully loads
     public preSptLoad(container: DependencyContainer): void {
+        
         // We will save a reference to the dependency container to resolve dependencies
         // that we may need down the line
         Mod.container = container;
         Mod.config = JSON.parse(fs.readFileSync(Mod.configPath, "utf-8"));
+        this.logger = Mod.container.resolve<ILogger>("WinstonLogger");
+        this.logger.info("Insurance4Labs patching sendMail function of InsuranceController...")
 
-        Mod.container.logger.info("Insurance4Labs patching sendMail function of InsuranceController...")
         // Wait until InsuranceController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
         container.afterResolution("InsuranceController", (_t, result: InsuranceController) => {
@@ -37,16 +39,16 @@ class Mod implements IPreSptLoadMod {
             }
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, { frequency: "Always" });
-        Mod.container.logger.Log("Patch successful!", LogTextColor.GREEN);
-        
-        
+
+        this.logger.log("Patch successful!", LogTextColor.GREEN);
     }
 
     public postDBLoad(container: DependencyContainer): void {
-        Mod.container.logger.info("Setting up Fence insurance...");
+        this.logger.info("Setting up Fence insurance...");
 
         //fence's trader ID(loaded as a const that way in the future if it changes the mod is easier to update)
         const fenceTraderId = "579dc571d53a0658a154fbec";
+        const praporTraderId = "54cb50c76803fa8b248b4571";
 
         //all this is to get the fence json file so we can make insurance available
         const dbService = Mod.container.resolve<DatabaseService>("DatabaseService");
@@ -79,9 +81,28 @@ class Mod implements IPreSptLoadMod {
         const insuranceConfig = configServer.getConfig("spt-insurance");
         insuranceConfig.returnChancePercent[fenceTraderId] = Mod.config.FenceInsuranceReturnChance;
 
+        //next let's add some dialogue to fence, by default this just gives him all the insurance dialogue that prapor has, but can be changed in the future
+        this.addFenceDialogues(praporTraderId);
+
+        this.logger.log("Fence insurance is open for business!", LogTextColor.GREEN);
     }
 
+    public addFenceDialogues(traderIdToCopy: string) : void
+    {
+        this.logger.info("Adding dialogue to fence for insurance messages...");
 
+        const fenceTraderId = "579dc571d53a0658a154fbec";
+        const databaseService = Mod.container.resolve<DatabaseService>("DatabaseService");
+        const fenceDialogue = databaseService.getTrader(fenceTraderId).dialogue;
+        const copyDialogue = databaseService.getTrader(traderIdToCopy).dialogue;
+
+        for(let eachDialogue in copyDialogue)
+        {
+            this.logger.info("pushing " + copyDialogue[eachDialogue] + " to fence's dialogue");
+            fenceDialogue.push(copyDialogue[eachDialogue]);
+        }
+
+    }
     //
     //sendmail function copy from the original spt source code
     public replacementSendMail(sessionID: string, insurance: Insurance): void {
