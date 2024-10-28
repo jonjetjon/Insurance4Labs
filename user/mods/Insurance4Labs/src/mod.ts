@@ -66,39 +66,6 @@ class Mod implements IPreSptLoadMod
         }, {frequency: "Always"});
     }
 
-    // our new replacement function, ready to be used
-    public replacementFunction(info: ILoginRequestData): string
-    {
-        // The original method requires the save server to be loaded
-        const saveServer = Mod.container.resolve<SaveServer>("SaveServer");
-
-        // The logic below is the original login method logic
-        let originalReturn = "";
-        for (const sessionID in saveServer.getProfiles())
-        {
-            const account = saveServer.getProfile(sessionID).info;
-            if (info.username === account.username)
-            {
-                originalReturn = sessionID;
-                break;
-            }
-        }
-
-        // This is now extra stuff we want to add
-        // We resolve 2 more dependencies: The logger and the DatabaseServer
-        const logger = Mod.container.resolve<ILogger>("WinstonLogger");
-        const dbServer = Mod.container.resolve<DatabaseServer>("DatabaseServer");
-
-        // As an example Im counting the amount of loaded items on the DB
-        const loadedItems = Object.entries(dbServer.getTables().templates.items).length;
-        // Lets do a few informational messages
-        logger.success(`User ${info.username} logged in to SPT, there are ${loadedItems} items loaded into the database`);
-        logger.success(originalReturn.length > 0 ? `User session ID: ${originalReturn}` : "User not found");
-
-        // And finally return whatever we were supposed to return through this function
-        return originalReturn;
-    }
-
     //
     //sendmail function copy from the original spt source code
     public replacementSendMail(sessionID: string, insurance: Insurance): void {
