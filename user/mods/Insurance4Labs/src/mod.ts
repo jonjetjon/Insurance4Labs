@@ -40,6 +40,7 @@ class Mod implements IPreSptLoadMod {
     public postDBLoad(container: DependencyContainer): void {
         //fence's trader ID(loaded as a const that way in the future if it changes the mod is easier to update)
         const fenceTraderId = "579dc571d53a0658a154fbec";
+        
         //all this is to get the fence json file so we can make insurance available
         const dbService = Mod.container.resolve<DatabaseService>("DatabaseService");
         const traderdb = dbService.getTables().traders;
@@ -102,32 +103,30 @@ class Mod implements IPreSptLoadMod {
 
         // Map is labs + insurance is disabled in base.json
         if (insurance.systemData?.location?.toLowerCase() === labsId && !databaseService.getLocation(labsId).base.Insurance) {
-            
+
 
             // Trader has labs-specific messages
             // Wipe out returnable items
             if (traderDialogMessages.insuranceFailedLabs?.length > 0) {
-                if(insurance.traderId === fenceTraderId){
+                if (insurance.traderId === fenceTraderId) {
                     //run the fence insurance code
                     logger.info("found labs insurance, but it's insured by fence, skipping the clear code");
                 }
-                else{
+                else {
                     //run the normal insurance code
                     const insuranceFailedLabTemplates = traderDialogMessages.insuranceFailedLabs;
                     insurance.messageTemplateId = insuranceFailedLabTemplates[Math.floor(Math.random() * insuranceFailedLabTemplates.length)];
                     insurance.items = [];
                 }
             }
-            else
-            {
+            else {
                 //very strange edge case, we have labs insurance that should have failed, but no message to attach to the failed insurance, let's try and find another dialogue message to attach
-                if(traderDialogMessages.insuranceFailed?.length > 0)
-                {
+                if (traderDialogMessages.insuranceFailed?.length > 0) {
                     const insuranceFailedTemplates = traderDialogMessages.insuranceFailed;
                     insurance.messageTemplateId = insuranceFailedTemplates[Math.floor(Math.random() * insuranceFailedTemplates.length)];
                     insurance.items = [];
                 }
-                else{
+                else {
                     //VERY VERY strange edge case, some trader has neither insurance failed messages or labs insurance failed messages
                     //doubt we will ever reach this code but here we are
                     logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for failed insurance or labs insurance");
