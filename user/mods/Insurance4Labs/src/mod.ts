@@ -38,13 +38,15 @@ class Mod implements IPreSptLoadMod
     }
 
     public postDBLoad(container: DependencyContainer): void {
+        //all this is to get the fence json file so we can make insurance available
         const dbService = Mod.container.resolve<DatabaseService>("DatabaseService");
         const traderdb = dbService.getTables().traders;
         const fencedb = traderdb["579dc571d53a0658a154fbec"];
         const fenceBase = fencedb["base"];
-        const insurancedb = fencedb["insurance"];
+        const insurancedb = fenceBase["insurance"];
         const logger = Mod.container.resolve<ILogger>("WinstonLogger");
-        logger.info(fenceBase);
+        
+
         
     }
 
