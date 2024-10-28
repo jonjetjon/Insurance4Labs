@@ -41,18 +41,20 @@ import { SaveServer } from "@spt/servers/SaveServer";
 class Mod implements IPreSptLoadMod
 {
     public databaseService: DatabaseService;
+    public mailSendService: MailSendService;
     // DO NOT leave static references to ANY resolved dependency.
     // ALWAYS use the container to resolve dependencies
     // ****** ALWAYS *******
     private static container: DependencyContainer;
-
+    
     // Perform these actions before server fully loads
     public preSptLoad(container: DependencyContainer): void
     {
         // We will save a reference to the dependency container to resolve dependencies
         // that we may need down the line
         Mod.container = container;
-
+        this.databaseService = container.resolve<DatabaseService>("DatabaseService");
+        this.mailSendService = container.resolve<MailSendService>("MailSendService");
         // Wait until LauncherController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
         container.afterResolution("LauncherController", (_t, result: LauncherController) =>
