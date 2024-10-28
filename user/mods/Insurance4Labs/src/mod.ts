@@ -33,6 +33,7 @@ import { ICloner } from "@spt/utils/cloners/ICloner";
 
 import { IPreSptLoadMod } from "@spt/models/external/IPreSptLoadMod";
 import { LauncherController } from "@spt/controllers/LauncherController";
+import { InsuranceController } from "@spt/controllers/InsuranceController";
 import { DatabaseServer } from "@spt/servers/DatabaseServer";
 import { ILoginRequestData } from "@spt/models/eft/launcher/ILoginRequestData";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
@@ -52,14 +53,14 @@ class Mod implements IPreSptLoadMod
         // that we may need down the line
         Mod.container = container;
         
-        // Wait until LauncherController gets resolved by the server and run code afterwards to replace
+        // Wait until InsuranceController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
-        container.afterResolution("LauncherController", (_t, result: LauncherController) =>
+        container.afterResolution("InsuranceController", (_t, result: InsuranceController) =>
         {
             // We want to replace the original method logic with something different
-            result.login = (info: ILoginRequestData) =>
+            result.sendMail = (sessionID: string, insurance: Insurance) =>
             {
-                return this.replacementFunction(info);
+                return this.replacementSendMail(sessionID, insurance);
             }
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
@@ -107,6 +108,9 @@ class Mod implements IPreSptLoadMod
         const mailSendService = Mod.container.resolve<MailSendService>("MailSendService");
         const logger = Mod.container.resolve<ILogger>("WinstonLogger");
 
+        //hopefully this works
+        const traderHelper = Mod.container.resolve<TraderHelper>("TraderHelper");
+
         //test logger output to see if we are running the new code
         logger.info("Insurance4Labs sendMailFunction running...");
         
@@ -139,7 +143,7 @@ class Mod implements IPreSptLoadMod
         // Send the insurance message
         mailSendService.sendLocalisedNpcMessageToPlayer(
             sessionID,
-            this.traderHelper.getTraderById(insurance.traderId),
+            traderHelper.getTraderById(insurance.traderId),
             insurance.messageType,
             insurance.messageTemplateId,
             insurance.items,
