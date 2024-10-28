@@ -46,6 +46,15 @@ class Mod implements IPreSptLoadMod
         const insurancedb = fenceBase["insurance"];
         const logger = Mod.container.resolve<ILogger>("WinstonLogger");
         
+        //make fence insurance available
+        insurancedb["availability"] = true;
+        insurancedb["excluded_category"] = ["62e9103049c018f425059f38"];
+
+        //set insurance return times
+        insurancedb["max_return_hour"] = 1;
+        insurancedb["min_return_hour"] = 1;
+
+        
 
         
     }
