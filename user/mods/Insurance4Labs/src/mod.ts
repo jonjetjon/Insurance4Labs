@@ -1,43 +1,14 @@
 import { DependencyContainer } from "tsyringe";
 
-import { DialogueHelper } from "@spt/helpers/DialogueHelper";
-import { ItemHelper } from "@spt/helpers/ItemHelper";
-import { ProfileHelper } from "@spt/helpers/ProfileHelper";
+
 import { TraderHelper } from "@spt/helpers/TraderHelper";
-import { WeightedRandomHelper } from "@spt/helpers/WeightedRandomHelper";
-import { IPmcData } from "@spt/models/eft/common/IPmcData";
-import { Item } from "@spt/models/eft/common/tables/IItem";
-import { IGetInsuranceCostRequestData } from "@spt/models/eft/insurance/IGetInsuranceCostRequestData";
-import { IGetInsuranceCostResponseData } from "@spt/models/eft/insurance/IGetInsuranceCostResponseData";
-import { IInsureRequestData } from "@spt/models/eft/insurance/IInsureRequestData";
-import { IItemEventRouterResponse } from "@spt/models/eft/itemEvent/IItemEventRouterResponse";
 import { Insurance } from "@spt/models/eft/profile/ISptProfile";
-import { IProcessBuyTradeRequestData } from "@spt/models/eft/trade/IProcessBuyTradeRequestData";
-import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
-import { Money } from "@spt/models/enums/Money";
-import { SkillTypes } from "@spt/models/enums/SkillTypes";
-import { IInsuranceConfig } from "@spt/models/spt/config/IInsuranceConfig";
-import { EventOutputHolder } from "@spt/routers/EventOutputHolder";
-import { ConfigServer } from "@spt/servers/ConfigServer";
 import { DatabaseService } from "@spt/services/DatabaseService";
-import { InsuranceService } from "@spt/services/InsuranceService";
-import { LocalisationService } from "@spt/services/LocalisationService";
 import { MailSendService } from "@spt/services/MailSendService";
-import { PaymentService } from "@spt/services/PaymentService";
-import { RagfairPriceService } from "@spt/services/RagfairPriceService";
-import { HashUtil } from "@spt/utils/HashUtil";
-import { MathUtil } from "@spt/utils/MathUtil";
-import { ProbabilityObject, ProbabilityObjectArray, RandomUtil } from "@spt/utils/RandomUtil";
-import { TimeUtil } from "@spt/utils/TimeUtil";
-import { ICloner } from "@spt/utils/cloners/ICloner";
 
 import { IPreSptLoadMod } from "@spt/models/external/IPreSptLoadMod";
-import { LauncherController } from "@spt/controllers/LauncherController";
 import { InsuranceController } from "@spt/controllers/InsuranceController";
-import { DatabaseServer } from "@spt/servers/DatabaseServer";
-import { ILoginRequestData } from "@spt/models/eft/launcher/ILoginRequestData";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
-import { SaveServer } from "@spt/servers/SaveServer";
 
 class Mod implements IPreSptLoadMod
 {
@@ -65,6 +36,11 @@ class Mod implements IPreSptLoadMod
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
     }
+
+    public postDBLoad(container: DependencyContainer): void {
+
+    }
+
 
     //
     //sendmail function copy from the original spt source code
