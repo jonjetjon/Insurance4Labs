@@ -96,12 +96,9 @@ class Mod implements IPreSptLoadMod {
         const fenceDialogue = databaseService.getTrader(fenceTraderId).dialogue;
         const copyDialogue = databaseService.getTrader(traderIdToCopy).dialogue;
 
-        for(let eachDialogue in copyDialogue)
-        {
-            this.logger.info("pushing " + copyDialogue[eachDialogue] + " to fence's dialogue");
-            fenceDialogue.push(copyDialogue[eachDialogue]);
-        }
+        const combinedDialogue = {fenceDialogue, copyDialogue};
 
+        databaseService.getTrader(fenceTraderId).dialogue = combinedDialogue;
     }
     //
     //sendmail function copy from the original spt source code
