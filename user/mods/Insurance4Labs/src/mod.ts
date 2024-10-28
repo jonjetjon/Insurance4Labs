@@ -69,7 +69,7 @@ class Mod implements IPreSptLoadMod {
         //we need to grab the config server to change insurance return percentages
         const configServer = Mod.container.resolve("ConfigServer");
         const insuranceConfigServer = configServer.getConfig("spt-insurance");
-
+        
 
     }
 
@@ -162,6 +162,7 @@ interface Config {
     FenceInsuranceMaxHour: number,
     FenceMaxStorageTime: number,
     FenceInsurancePriceCoef: number,
+    FenceInsuranceReturnChance: number,
     debug: boolean
 }
 
