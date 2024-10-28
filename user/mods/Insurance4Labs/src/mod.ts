@@ -8,6 +8,7 @@ import { InsuranceController } from "@spt/controllers/InsuranceController";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { LogTextColor } from "@spt/models/spt/logging/LogTextColor";
 
 class Mod implements IPreSptLoadMod {
 
@@ -26,6 +27,7 @@ class Mod implements IPreSptLoadMod {
         Mod.container = container;
         Mod.config = JSON.parse(fs.readFileSync(Mod.configPath, "utf-8"));
 
+        Mod.container.logger.info("Insurance4Labs patching sendMail function of InsuranceController...")
         // Wait until InsuranceController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
         container.afterResolution("InsuranceController", (_t, result: InsuranceController) => {
@@ -35,12 +37,17 @@ class Mod implements IPreSptLoadMod {
             }
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, { frequency: "Always" });
+        Mod.container.logger.Log("Patch successful!", LogTextColor.GREEN);
+        
+        
     }
 
     public postDBLoad(container: DependencyContainer): void {
+        Mod.container.logger.info("Setting up Fence insurance...");
+
         //fence's trader ID(loaded as a const that way in the future if it changes the mod is easier to update)
         const fenceTraderId = "579dc571d53a0658a154fbec";
-        
+
         //all this is to get the fence json file so we can make insurance available
         const dbService = Mod.container.resolve<DatabaseService>("DatabaseService");
         const traderdb = dbService.getTables().traders;
@@ -90,10 +97,6 @@ class Mod implements IPreSptLoadMod {
         //hopefully this works
         const traderHelper = Mod.container.resolve<TraderHelper>("TraderHelper");
 
-        //test logger output to see if we are running the new code
-        logger.info("Insurance4Labs sendMailFunction running...");
-
-
         //original code starts here
         const labsId = "laboratory";
 
@@ -110,7 +113,7 @@ class Mod implements IPreSptLoadMod {
             if (traderDialogMessages.insuranceFailedLabs?.length > 0) {
                 if (insurance.traderId === fenceTraderId) {
                     //run the fence insurance code
-                    logger.info("found labs insurance, but it's insured by fence, skipping the clear code");
+                    logger.info("Insurance4Labs found a labs insurance return that was insured by fence, intercepting");
                 }
                 else {
                     //run the normal insurance code
@@ -122,6 +125,8 @@ class Mod implements IPreSptLoadMod {
             else {
                 //very strange edge case, we have labs insurance that should have failed, but no message to attach to the failed insurance, let's try and find another dialogue message to attach
                 if (traderDialogMessages.insuranceFailed?.length > 0) {
+                    logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for labs insurance");
+                    logger.info("Attempting to send a regular failed insurance message");
                     const insuranceFailedTemplates = traderDialogMessages.insuranceFailed;
                     insurance.messageTemplateId = insuranceFailedTemplates[Math.floor(Math.random() * insuranceFailedTemplates.length)];
                     insurance.items = [];
@@ -129,7 +134,7 @@ class Mod implements IPreSptLoadMod {
                 else {
                     //VERY VERY strange edge case, some trader has neither insurance failed messages or labs insurance failed messages
                     //doubt we will ever reach this code but here we are
-                    logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for failed insurance or labs insurance");
+                    logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for failed insurance OR for labs insurance, contact your mod author and inform them their trader is missing insurance dialogues");
                     logger.info("Sending a nice prapor message in its place");
                     const praporDialogues = databaseService.getTrader(praporTraderId).dialogue;
                     const insuranceFailedTemplates = praporDialogues.insuranceFailed;
