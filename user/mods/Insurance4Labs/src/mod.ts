@@ -110,8 +110,10 @@ class Mod implements IPreSptLoadMod
         //test logger output to see if we are running the new code
         logger.info("Insurance4Labs sendMailFunction running...");
         
+        
         //original code starts here
         const labsId = "laboratory";
+        
         // After all of the item filtering that we've done, if there are no items remaining, the insurance has
         // successfully "failed" to return anything and an appropriate message should be sent to the player.
         const traderDialogMessages = databaseService.getTrader(insurance.traderId).dialogue;
@@ -125,13 +127,13 @@ class Mod implements IPreSptLoadMod
             // Wipe out returnable items
             if (traderDialogMessages.insuranceFailedLabs?.length > 0) {
                 const insuranceFailedLabTemplates = traderDialogMessages.insuranceFailedLabs;
-                insurance.messageTemplateId = this.randomUtil.getArrayValue(insuranceFailedLabTemplates);
+                insurance.messageTemplateId = insuranceFailedLabTemplates[Math.floor(Math.random() * insuranceFailedLabTemplates.length)];
                 insurance.items = [];
             }
         } else if (insurance.items.length === 0) {
             // Not labs and no items to return
             const insuranceFailedTemplates = traderDialogMessages.insuranceFailed;
-            insurance.messageTemplateId = this.randomUtil.getArrayValue(insuranceFailedTemplates);
+            insurance.messageTemplateId = insuranceFailedTemplates[Math.floor(Math.random() * insuranceFailedTemplates.length)];
         }
 
         // Send the insurance message
