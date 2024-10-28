@@ -38,10 +38,12 @@ class Mod implements IPreSptLoadMod {
     }
 
     public postDBLoad(container: DependencyContainer): void {
+        //fence's trader ID(loaded as a const that way in the future if it changes the mod is easier to update)
+        const fenceTraderId = "579dc571d53a0658a154fbec";
         //all this is to get the fence json file so we can make insurance available
         const dbService = Mod.container.resolve<DatabaseService>("DatabaseService");
         const traderdb = dbService.getTables().traders;
-        const fencedb = traderdb["579dc571d53a0658a154fbec"];
+        const fencedb = traderdb[fenceTraderId];
         const fenceBase = fencedb["base"];
         const insurancedb = fenceBase["insurance"];
         const logger = Mod.container.resolve<ILogger>("WinstonLogger");
@@ -64,12 +66,20 @@ class Mod implements IPreSptLoadMod {
             currentLevel["insurance_price_coef"] = Mod.config.FenceInsurancePriceCoef;
         }
 
+        //we need to grab the config server to change insurance return percentages
+        const configServer = Mod.container.resolve("ConfigServer");
+        const insuranceConfigServer = configServer.getConfig("spt-insurance");
+
+
     }
 
 
     //
     //sendmail function copy from the original spt source code
     public replacementSendMail(sessionID: string, insurance: Insurance): void {
+        //traderIds here so that the mod can be updated if they ever change
+        const fenceTraderId = "579dc571d53a0658a154fbec";
+        const praporTraderId = "54cb50c76803fa8b248b4571";
 
         //resolve the services for use in this function that would normally be called from the class of the function we are replacing
         const databaseService = Mod.container.resolve<DatabaseService>("DatabaseService");
@@ -92,10 +102,12 @@ class Mod implements IPreSptLoadMod {
 
         // Map is labs + insurance is disabled in base.json
         if (insurance.systemData?.location?.toLowerCase() === labsId && !databaseService.getLocation(labsId).base.Insurance) {
+            
+
             // Trader has labs-specific messages
             // Wipe out returnable items
             if (traderDialogMessages.insuranceFailedLabs?.length > 0) {
-                if(insurance.traderId === "579dc571d53a0658a154fbec"){
+                if(insurance.traderId === fenceTraderId){
                     //run the fence insurance code
                     logger.info("found labs insurance, but it's insured by fence, skipping the clear code");
                 }
@@ -119,7 +131,11 @@ class Mod implements IPreSptLoadMod {
                     //VERY VERY strange edge case, some trader has neither insurance failed messages or labs insurance failed messages
                     //doubt we will ever reach this code but here we are
                     logger.warning("A trader was supposed to send a failed insurance message due to gear being lost on labs, but has no dialogues for failed insurance or labs insurance");
-
+                    logger.info("Sending a nice prapor message in its place");
+                    const praporDialogues = databaseService.getTrader(praporTraderId).dialogue;
+                    const insuranceFailedTemplates = praporDialogues.insuranceFailed;
+                    insurance.messageTemplateId = insuranceFailedTemplates[Math.floor(Math.random() * insuranceFailedTemplates.length)];
+                    insurance.items = [];
                 }
             }
         } else if (insurance.items.length === 0) {
