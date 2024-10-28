@@ -3,5 +3,5 @@
     "FenceInsuranceMaxHour": 0,
     "FenceMaxStorageTime": 50,
     "FenceInsurancePriceCoef": 30,
-    "debug" : false
+    "debug" : true
   }
