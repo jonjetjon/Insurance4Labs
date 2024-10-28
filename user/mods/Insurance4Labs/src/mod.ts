@@ -1,29 +1,33 @@
 import { DependencyContainer } from "tsyringe";
-
-
 import { TraderHelper } from "@spt/helpers/TraderHelper";
 import { Insurance } from "@spt/models/eft/profile/ISptProfile";
 import { DatabaseService } from "@spt/services/DatabaseService";
 import { MailSendService } from "@spt/services/MailSendService";
-
 import { IPreSptLoadMod } from "@spt/models/external/IPreSptLoadMod";
 import { InsuranceController } from "@spt/controllers/InsuranceController";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 class Mod implements IPreSptLoadMod
 {
+
     // DO NOT leave static references to ANY resolved dependency.
     // ALWAYS use the container to resolve dependencies
     // ****** ALWAYS *******
     public static container: DependencyContainer;
     
+    private static configPath = path.resolve(__dirname, "../config/config.json");
+    private static config: Config;
+
     // Perform these actions before server fully loads
     public preSptLoad(container: DependencyContainer): void
     {
         // We will save a reference to the dependency container to resolve dependencies
         // that we may need down the line
         Mod.container = container;
-        
+        Mod.config = JSON.parse(fs.readFileSync(Mod.configPath, "utf-8"));
+
         // Wait until InsuranceController gets resolved by the server and run code afterwards to replace
         // the login() function with the one below called 'replacementFunction()
         container.afterResolution("InsuranceController", (_t, result: InsuranceController) =>
@@ -51,9 +55,11 @@ class Mod implements IPreSptLoadMod
         insurancedb["excluded_category"] = ["62e9103049c018f425059f38"];
 
         //set insurance return times
-        insurancedb["max_return_hour"] = 1;
-        insurancedb["min_return_hour"] = 1;
-
+        insurancedb["max_return_hour"] = Mod.config.FenceInsuranceMaxHour;
+        insurancedb["min_return_hour"] = Mod.config.FenceInsuranceMinHour;
+        insurancedb["max_storage_time"] = Mod.config.FenceMaxStorageTime;
+        
+        
         
 
         
@@ -113,5 +119,13 @@ class Mod implements IPreSptLoadMod
         );
     }
 }
+
+interface Config {
+    FenceInsuranceMinHour: number,
+    FenceInsuranceMaxHour: number,
+    FenceMaxStorageTime: number,
+    FenceInsurancePriceCoef: number,
+    debug: boolean
+  }
 
 export const mod = new Mod();
