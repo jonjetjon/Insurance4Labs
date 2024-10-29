@@ -1,8 +1,8 @@
 {
-    "FenceInsuranceMinHour": 0,
-    "FenceInsuranceMaxHour": 0,
-    "FenceMaxStorageTime": 50,
-    "FenceInsurancePriceCoef": 30,
+    "FenceInsuranceMinHour": 24,
+    "FenceInsuranceMaxHour": 36,
+    "FenceMaxStorageTime": 96,
+    "FenceInsurancePriceCoef": 42,
     "FenceInsuranceReturnChance": 50,
-    "debug" : true
+    "debug" : false
   }
