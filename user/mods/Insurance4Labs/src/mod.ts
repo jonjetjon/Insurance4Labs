@@ -63,9 +63,9 @@ class Mod implements IPreSptLoadMod {
         insurancedb["excluded_category"] = ["62e9103049c018f425059f38"];
 
         //set insurance return times
-        insurancedb["max_return_hour"] = Mod.config.FenceInsuranceMaxHour;
-        insurancedb["min_return_hour"] = Mod.config.FenceInsuranceMinHour;
-        insurancedb["max_storage_time"] = Mod.config.FenceMaxStorageTime;
+        insurancedb["max_return_hour"] = Math.floor(Mod.config.FenceInsuranceMaxHour);
+        insurancedb["min_return_hour"] = Math.floor(Mod.config.FenceInsuranceMinHour);
+        insurancedb["max_storage_time"] = Math.floor(Mod.config.FenceMaxStorageTime);
 
 
         const loyaltyLeveldb = fenceBase["loyaltyLevels"];
