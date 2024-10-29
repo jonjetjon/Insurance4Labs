@@ -122,8 +122,7 @@ class Mod implements IPreSptLoadMod {
         const traderDialogMessages = databaseService.getTrader(insurance.traderId).dialogue;
 
         // Map is labs + insurance is disabled in base.json
-        if (insurance.systemData?.location?.toLowerCase() === labsId && !databaseService.getLocation(labsId).base.Insurance) {
-
+        if (insurance.systemData?.location?.toLowerCase() === labsId && !databaseService.getLocation(labsId).base.Insurance && insurance.items.length != 0) {
 
             // Trader has labs-specific messages
             // Wipe out returnable items
